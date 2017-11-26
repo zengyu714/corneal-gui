@@ -1,0 +1,49 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}Corneal Limbus GUI{% endblock %}
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+{% endblock %}
+{% block navbar %}
+    <div class="navbar navbar-inverse" role="navigation">
+        <div class="container">
+            <div class="btn-toolbar" role="toolbar" aria-label="Button">
+                <button class="btn btn-default navbar-btn" type="button" aria-label="Home">
+                    <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+                    <a href="/" style="font-size: 20px; font-weight: 600;">HOME</a>
+                </button>
+                <form class="navbar-form navbar-right">
+                    <input type="file" name="video" class="file">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-film"></i></span>
+                        <input type="text" class="form-control input-lg" placeholder="No file chosen..." readonly>
+                        <span class="input-group-btn">
+                            <button class="browse btn btn-primary input-lg" type="button" style="font-size: 20px;">
+                            <i class="glyphicon glyphicon-search"></i> BROWSE</button>
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2">.col-md-2</div>
+            <div class="col-md-2">.col-md-2</div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">.col-md-3</div>
+            <div class="col-md-3">.col-md-3</div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script language="JavaScript" type="text/javascript"
+            src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/open_file.js') }}"></script>
+    {{ super() }}
+{% endblock %}
