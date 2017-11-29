@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block head %}
+    {{ super() }}
+    {{ dropzone.load() }}
+    {{ dropzone.style("
+    border: 2px dashed #c2bfbf;
+    margin: 3%;
+    min-height: 200px;
+    padding: 20px 29px") }}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row" style="margin-top: 3em;">
+            <div class="col-md-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-film" aria-hidden="true"></span>
+                        Select
+                    </div>
+                    <div class="panel-body">
+                        {{ dropzone.create("index") }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 " style="padding-left: 0;">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
+                        Repository
+                    </div>
+                    <div class="panel-body">
+                        <button type="button" class="btn btn-danger btn-lg" id="clearButton">
+                            <a href="/clear_repo">Clear</a>
+                        </button>
+                        <button type="button" class="btn btn-info btn-lg" id="refreshButton">
+                            <a href="/">Refresh</a>
+                        </button>
+                        <button type="button" class="btn btn-primary btn-lg btn-block" id="runButton">Run all</button>
+                        <div id="repoButtons" class="btn-group-vertical" data-toggle="buttons"
+                             style="display: inherit">
+                            {% for file in files %}
+                                <label class="btn btn-default btn-block">
+                                    <input type="radio" autocomplete="off" value="{{ file }}">
+                                    <span class="glyphicon glyphicon-menu-right" aria-hidden="true"
+                                          style="font-size: 18px;">
+                                    </span>
+                                    {{ file }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-sunglasses" aria-hidden="true"></span>
+                        Overview
+                    </div>
+                    <div class="panel-body" style="min-height: 200px;">
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                        Checked
+                    </div>
+                    <div class="panel-body" style="padding-top: 0;">
+                        <form class="form-inline" method="post">
+                            <input type="hidden" class="form-control" name="checked_video_name"
+                                   id="checkedRepo">
+                            <div id="checkedRepoText"></div>
+                            <button type="submit" class="btn btn-success btn-block">Inspect</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

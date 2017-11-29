@@ -1,0 +1,128 @@
+.row {
+    border: #5ac3ff solid 1px;
+}
+
+.col-md-8 {
+    border: #ff8794 solid 1px;
+}
+
+.col-md-4 {
+    padding-left: 0;
+}
+
+a, a:hover, a:focus {
+    color: inherit;
+    text-decoration: none;
+}
+
+img {
+    vertical-align: inherit;
+    width: 100%;
+}
+
+.caption {
+    position: inherit;
+    width: 100%;
+    top: -5.2em;
+    left: 0.5em;
+    font-size: 30px;
+    color: #fbfff9
+}
+
+.glyphicon {
+    font-size: 23px;
+}
+
+.glyphicon-circle-arrow-right, .glyphicon-circle-arrow-left {
+    font-size: 30px;
+}
+
+.glyphicon-folder-open {
+    margin-right: 7px;
+}
+
+.glyphicon-film, .glyphicon-home, .glyphicon-check, .glyphicon-sunglasses {
+    margin-right: 5px;
+}
+
+.btn-toolbar .btn, .btn-toolbar .btn-group, .btn-toolbar .input-group {
+    float: none;
+}
+
+#clearButton {
+    float: left;
+}
+
+#refreshButton {
+    float: right;
+}
+
+.btn-group-lg > .btn, .btn-lg {
+    margin: 13px 0;
+    min-width: 48%;
+}
+
+.btn-group-vertical > .btn {
+    text-align: left;
+    padding-left: 0;
+    font-size: 15.5px;
+    margin-top: 27px;
+    margin-bottom: 7px;
+    border-radius: 4px !important;
+}
+
+.form-inline > .btn-success {
+    font-size: 18px;
+    margin-top: 20px;
+    padding: 10px;
+}
+
+.navbar-form .input-group > .form-control {
+    width: 470px;
+}
+
+.file {
+    visibility: hidden;
+    position: absolute;
+}
+
+.dropzone .dz-message {
+    color: #bcbcbc;
+    font-size: 1.5em;
+    margin-top: 3em !important;
+}
+
+#checkedRepoText {
+    min-height: 22px;
+    font-weight: 600;
+    font-size: 16px;
+    margin: 20px 0;
+    background-color: lightyellow;
+    /*border: none;*/
+    /*padding: 0;*/
+    /*box-shadow: none;*/
+    /*background: transparent none;*/
+}
+
+.panel-heading {
+    font-size: 18px;
+}
+
+.carousel-linked-nav,
+.item img {
+    display: block;
+    margin: 0 auto;
+}
+
+.carousel-control {
+    position: absolute;
+    top: 45%;
+    bottom: 55%;
+    left: 0;
+    width: 15%;
+    color: #4ea0e7;
+    text-align: center;
+    opacity: .5;
+    margin-top: 10%;
+}
+

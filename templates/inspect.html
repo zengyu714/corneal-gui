@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+        <div class="row" style="margin-top: 1em;">
+            <h3 style="padding: 15px;">Detail: {{ checked_video_name }}</h3>
+        </div>
+        <div class="row">
+            <div class="col-md-5">
+                {% for p in checked_frame_path %}
+                    <img src="{{ url_for('static', filename=p) }}"/>
+                    <div class="caption">{{ loop.index }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
