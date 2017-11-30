@@ -47,14 +47,14 @@ img {
 
 .btn-toolbar .btn, .btn-toolbar .btn-group, .btn-toolbar .input-group {
     float: none;
+    font-size: 20px;
+    min-width: 130px;
+
 }
 
-#clearButton {
-    float: left;
-}
-
-#refreshButton {
-    float: right;
+#homeButton {
+    font-weight: 600;
+    color: #17171b;
 }
 
 .btn-group-lg > .btn, .btn-lg {

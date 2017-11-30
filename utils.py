@@ -5,10 +5,11 @@ from scipy.misc import imsave
 
 
 def convert_to_frames(video_name):
-    """Convert video to frames in the same data"""
+    """Convert video to frames."""
+    video_name = video_name.rstrip('.avi')
     video_path = 'repo/{}.avi'.format(video_name)
     base_name = video_path.split('/')[-1][:-4]
-    frame_dir = 'static/cache/{}'.format(base_name)
+    frame_dir = 'static/cache/frame/{}'.format(base_name)
     if os.path.exists(frame_dir):
         return sorted([os.path.join(frame_dir, p) for p in os.listdir(frame_dir)])
     else:

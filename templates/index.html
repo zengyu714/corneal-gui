@@ -10,6 +10,13 @@
     padding: 20px 29px") }}
 {% endblock %}
 
+{% block additionalButtonBlock %}
+    <button class="btn btn-success navbar-btn pull-right" type="button">
+        <span class="glyphicon glyphicon-refresh"></span>
+        <a href="/">Refresh</a>
+    </button>
+{% endblock %}
+
 {% block content %}
     <div class="container">
         <div class="row" style="margin-top: 3em;">
@@ -30,14 +37,13 @@
                         <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
                         Repository
                     </div>
-                    <div class="panel-body">
-                        <button type="button" class="btn btn-danger btn-lg" id="clearButton">
+                    <div class="panel-body" style="min-height: 273.5px;">
+                        <button type="button" class="btn btn-danger btn-lg btn-block" id="clearButton">
                             <a href="/clear_repo">Clear</a>
                         </button>
-                        <button type="button" class="btn btn-info btn-lg" id="refreshButton">
-                            <a href="/">Refresh</a>
+                        <button type="button" class="btn btn-primary btn-lg btn-block" id="runButton">
+                            <a href="/run_all">Run all</a>
                         </button>
-                        <button type="button" class="btn btn-primary btn-lg btn-block" id="runButton">Run all</button>
                         <div id="repoButtons" class="btn-group-vertical" data-toggle="buttons"
                              style="display: inherit">
                             {% for file in files %}

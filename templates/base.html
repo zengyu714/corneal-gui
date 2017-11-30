@@ -11,26 +11,12 @@
     <div class="navbar navbar-inverse" role="navigation">
         <div class="container">
             <div class="btn-toolbar" role="toolbar" aria-label="Button">
-                <button class="btn btn-warning navbar-btn" type="button" aria-label="Home">
+                <button class="btn btn-warning navbar-btn" type="button" aria-label="Home" id="homeButton">
                     <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
-                    <a href="/" style="font-size: 20px; font-weight: 600; color: #17171b">Home</a>
+                    <a href="/">Home</a>
                 </button>
-                <form class="navbar-form navbar-right" method="post">
-                    <input type="file" name="video-name" class="file">
-                    <div class="input-group">
-                        <span class="input-group-addon"><i class="glyphicon glyphicon-film"></i></span>
-                        <input type="text" class="form-control input-lg"
-                               placeholder="No file chosen...">
-                        <span class="input-group-btn">
-                            <button class="browse btn btn-default input-lg" type="button" style="font-size: 20px;">
-                            <i class="glyphicon glyphicon-search"></i> BROWSE
-                            </button>
-                            <button class="btn btn-primary input-lg" type="submit" style="font-size: 20px;">
-                            <i class="glyphicon glyphicon-ok"></i> OK
-                            </button>
-                        </span>
-                    </div>
-                </form>
+                {% block additionalButtonBlock %}
+                {% endblock %}
             </div>
         </div>
     </div>
