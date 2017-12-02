@@ -106,6 +106,3 @@ def fitting_curve(mask, margin=(60, 60)):
     curve_mask[y_lw_fit[lhs: -rhs], x_cord[lhs: -rhs]] = 255
 
     return abs(thickness.mean()), curve_mask
-
-
-

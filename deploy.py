@@ -1,4 +1,5 @@
 import os
+import sys
 import torch
 import imageio
 import warnings
@@ -9,8 +10,10 @@ from tqdm import tqdm
 from torch.autograd import Variable
 from scipy.misc import imread, imsave, imresize
 
+from utils import convert_to_frames
 from unet.model import UNetVanilla
-from unet.helper import remove_watermark, post_process, traditional_seg, fitting_curve, blend
+from unet.helper import remove_watermark, post_process, \
+    traditional_seg, fitting_curve, blend
 
 assert torch.cuda.is_available(), 'Error: CUDA not found!'
 
@@ -20,8 +23,7 @@ model = UNetVanilla()
 weights = torch.load('unet/weights/UNetVanilla_best.pth')
 model.load_state_dict(weights)
 model.eval().cuda()
-print('===> Loading model...')
-
+print('\n\n', ' Loading model '.center(110, '='))
 # template: binary image of watermark
 # surround: dilated template for later computation of surrounding intensity
 template_bw, surround_bw = [np.load('unet/weights/{}.npy'.format(f))
@@ -33,10 +35,11 @@ template_bw, surround_bw = [np.load('unet/weights/{}.npy'.format(f))
 def do_deploy():
     for video_name in os.listdir('repo'):
         video_name = video_name[:-4]
-        print('===> Processing video: {}...'.format(video_name))
+        print('\n\n', ' Processing video: 【{}.avi】 '.format(video_name).center(120, '='))
         frame_paths = sorted(glob('static/cache/frame/{}/*.jpg'.format(video_name)))
         thicks = []
-        for i, p in tqdm(enumerate(frame_paths, start=1)):
+        for i, p in tqdm(enumerate(frame_paths, start=1), file=sys.stdout,
+                         total=len(frame_paths), unit=' frames', dynamic_ncols=True):
             im = remove_watermark(imread(p, mode='L'), template_bw, surround_bw)
             x = Variable(torch.from_numpy(im[None, None, ...]), volatile=True).float().cuda()
             # if image is the first frame of a video
@@ -60,7 +63,7 @@ def do_deploy():
             except (IndexError, TypeError):
                 curve_mask = None
                 thicks.append(0)
-                print('Oops, fail to detect {}th frame...'.format(i))
+                tqdm.write('Oops, fail to detect {}th frame...'.format(i))
 
             # Save and Display
             deploy_dir = ['static/cache/infer/{}/{}'.format(video_name, subdir) for subdir in ['bw', 'blend']]
@@ -75,14 +78,23 @@ def do_deploy():
 def generate_video():
     for video_name in os.listdir('repo'):
         video_name = video_name[:-4]
-        print('===> Generating inferred video: {}...'.format(video_name))
+        print('\n\n', ' Generating inferred video: 【{}.mp4】 '.format(video_name).center(120, '='))
+        # Generate inferred video and make original frames into video in mp4 format
         with imageio.get_writer('static/cache/infer/blend_{}.mp4'.format(video_name), mode='I') as writer:
             for im_path in sorted(glob('static/cache/infer/{}/blend/*.jpg'.format(video_name))):
+                image = imresize(imread(im_path), (208, 576))  # resize for video compatibility
+                writer.append_data(image)
+        with imageio.get_writer('static/cache/infer/original_{}.mp4'.format(video_name), mode='I') as writer:
+            for im_path in sorted(glob('static/cache/frame/{}/*.jpg'.format(video_name))):
                 image = imresize(imread(im_path), (208, 576))  # resize for video compatibility
                 writer.append_data(image)
 
 
 if __name__ == '__main__':
     torch.cuda.set_device(0)
+    # 1. Generate all frames of the video in the repository
+    [convert_to_frames(video_name) for video_name in os.listdir('repo')]
+    # 2. Do the deploy
     do_deploy()
+    # 3. Output the video for visualization
     generate_video()

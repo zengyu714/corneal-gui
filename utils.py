@@ -21,3 +21,10 @@ def convert_to_frames(video_name):
             imsave(frame_name, im, format='jpeg')
             frame_names.append(frame_name)
         return frame_names
+
+
+def is_already_executed():
+    """If all videos have been already executed, the inferred directory should be exist."""
+    status = [os.path.exists('static/cache/infer/{}'.format(video_name[:-4]))
+              for video_name in os.listdir('repo')]
+    return all(status)

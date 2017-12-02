@@ -1,13 +1,13 @@
-.row {
-    border: #5ac3ff solid 1px;
-}
+/*.row {*/
+    /*border: #5ac3ff solid 1px;*/
+/*}*/
 
-.col-md-8 {
-    border: #ff8794 solid 1px;
-}
+/*.col-md-8 {*/
+    /*border: #ff8794 solid 1px;*/
+/*}*/
 
 .col-md-4 {
-    padding-left: 0;
+    padding: 0;
 }
 
 a, a:hover, a:focus {
@@ -20,11 +20,27 @@ img {
     width: 100%;
 }
 
+video {
+    width: 100%;
+    height: 270px;
+    margin-top: -36px;
+}
+
+h3 {
+    font-family: Georgia, Times, "Times New Roman", serif;
+    font-size: 30px;
+    font-weight: 500;
+    line-height: 15.4px;
+    background-color: #337ab7;
+    padding: 24px;
+    color: white;
+}
+
 .caption {
     position: inherit;
     width: 100%;
-    top: -5.2em;
-    left: 0.5em;
+    top: -6.2em;
+    left: 0.6em;
     font-size: 30px;
     color: #fbfff9
 }
@@ -33,15 +49,37 @@ img {
     font-size: 23px;
 }
 
-.glyphicon-circle-arrow-right, .glyphicon-circle-arrow-left {
-    font-size: 30px;
-}
-
 .glyphicon-folder-open {
     margin-right: 7px;
 }
 
-.glyphicon-film, .glyphicon-home, .glyphicon-check, .glyphicon-sunglasses {
+.glyphicon-alert {
+    font-size: 16px;
+    margin-right: 5px;
+}
+
+.glyphicon-facetime-video {
+    margin-left: -215px;
+    margin-right: 10px;
+}
+
+.glyphicon-zoom-in {
+    margin-left: -207px;
+    margin-right: 10px;
+}
+
+.glyphicon-plane {
+    margin-right: 5px;
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+    transform: rotate(90deg);
+}
+
+.glyphicon-search, .glyphicon-sunglasses, .glyphicon-dashboard {
+    margin-right: 10px;
+
+}
+
+.glyphicon-film, .glyphicon-home, .glyphicon-check {
     margin-right: 5px;
 }
 
@@ -57,17 +95,32 @@ img {
     color: #17171b;
 }
 
-.btn-group-lg > .btn, .btn-lg {
-    margin: 13px 0;
-    min-width: 48%;
+#clearButton {
+    padding: 4px;
+    min-width: 130px;
+    font-weight: 600;
+}
+
+#runButton {
+    margin-top: 30px;
+}
+
+.btn-panel {
+    font-family: Georgia, Times, "Times New Roman", serif;
+    font-size: 25px;
+    width: 100%;
+    color: #333;
+    background-color: #eee;
+    margin-bottom: 0.5em;
+    border-radius: inherit;
+    display: block;
 }
 
 .btn-group-vertical > .btn {
     text-align: left;
     padding-left: 0;
     font-size: 15.5px;
-    margin-top: 27px;
-    margin-bottom: 7px;
+    margin: 20px 0;
     border-radius: 4px !important;
 }
 
@@ -81,9 +134,24 @@ img {
     width: 470px;
 }
 
-.file {
-    visibility: hidden;
-    position: absolute;
+.progress {
+    width: 100%;
+    height: inherit;
+}
+
+.progress-bar {
+    font-family: Times, "Times New Roman", serif;
+    font-size: 18px;
+    height: 40px;
+    padding-top: 11px;
+    background-color: #6997ca;
+}
+
+.barLabel {
+    font-family: Times, "Times New Roman", serif;
+    font-weight: 600;
+    font-size: 20px;
+
 }
 
 .dropzone .dz-message {
@@ -108,21 +176,12 @@ img {
     font-size: 18px;
 }
 
-.carousel-linked-nav,
-.item img {
-    display: block;
-    margin: 0 auto;
+.tall-block {
+    min-height: 145px;
+    background-color: lightyellow;
+    margin-top: 22px;
 }
 
-.carousel-control {
-    position: absolute;
-    top: 45%;
-    bottom: 55%;
-    left: 0;
-    width: 15%;
-    color: #4ea0e7;
-    text-align: center;
-    opacity: .5;
-    margin-top: 10%;
+#repoButtons > .btn-default {
+    border-color: #ddd;
 }
-

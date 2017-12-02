@@ -36,26 +36,29 @@
                     <div class="panel-heading">
                         <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
                         Repository
-                    </div>
-                    <div class="panel-body" style="min-height: 273.5px;">
-                        <button type="button" class="btn btn-danger btn-lg btn-block" id="clearButton">
+                        <button type="button" class="btn btn-danger pull-right" id="clearButton">
+                            <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
                             <a href="/clear_repo">Clear</a>
                         </button>
+                    </div>
+                    <div class="panel-body" style="min-height: 273.5px;">
+                        <div class="tall-block">
+                            <div id="repoButtons" class="btn-group-vertical" data-toggle="buttons"
+                                 style="display: inherit">
+                                {% for file in files %}
+                                    <label class="btn btn-default btn-block">
+                                        <input type="radio" autocomplete="off" value="{{ file }}">
+                                        <span class="glyphicon glyphicon-menu-right" aria-hidden="true"
+                                              style="font-size: 18px;">
+                                    </span>
+                                        {{ file }}
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </div>
                         <button type="button" class="btn btn-primary btn-lg btn-block" id="runButton">
                             <a href="/run_all">Run all</a>
                         </button>
-                        <div id="repoButtons" class="btn-group-vertical" data-toggle="buttons"
-                             style="display: inherit">
-                            {% for file in files %}
-                                <label class="btn btn-default btn-block">
-                                    <input type="radio" autocomplete="off" value="{{ file }}">
-                                    <span class="glyphicon glyphicon-menu-right" aria-hidden="true"
-                                          style="font-size: 18px;">
-                                    </span>
-                                    {{ file }}
-                                </label>
-                            {% endfor %}
-                        </div>
                     </div>
                 </div>
             </div>
@@ -64,11 +67,21 @@
             <div class="col-md-8">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <span class="glyphicon glyphicon-sunglasses" aria-hidden="true"></span>
-                        Overview
+                        <a class="glyphicon glyphicon-plane" href="/yield" target="_blank"></a>
+                        Progress
                     </div>
-                    <div class="panel-body" style="min-height: 200px;">
-
+                    <div class="panel-body" style="min-height: 125px;">
+                        {% with messages = get_flashed_messages() %}
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div id="alreadyRunAlert" class="alert alert-danger"
+                                         style="font-size: 18px; display: block">
+                                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
                     </div>
                 </div>
             </div>
@@ -91,4 +104,3 @@
         </div>
     </div>
 {% endblock %}
-

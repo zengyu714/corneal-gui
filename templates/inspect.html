@@ -9,17 +9,78 @@
 
 {% block content %}
     <div class="container">
-        <div class="row" style="margin-top: 1em;">
-            <h3 style="padding: 15px;">Detail: {{ checked_video_name }}</h3>
+        <div class="row text-center">
+            <h3>
+                <span class="glyphicon glyphicon-sunglasses"></span>
+                {{ checked_video_name }}
+            </h3>
         </div>
         <div class="row">
-            <div class="col-md-5">
+            <button type="button" class="btn btn-panel" id="bioParamDetail">
+                <span class="glyphicon glyphicon-dashboard"></span>Biomechanical Parameters
+            </button>
+        </div>
+        <div class="row collapse bioParamCollapse" style="margin-bottom: 2em;">
+            <div class="col-md-6">
+                <table class="table table-hover table-bordered" style="font-size: 18px;">
+                    <tbody>
+                    {% for key, value in bio_params_1.items() %}
+                        <tr>
+                            <th>{{ key }}</th>
+                            <td>{{ value }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <table class="table table-hover table-bordered" style="font-size: 18px;">
+                    <tbody>
+                    {% for key, value in bio_params_2.items() %}
+                        <tr>
+                            <th>{{ key }}</th>
+                            <td>{{ value }}</td>
+                        </tr>
+                    {% endfor %}
+                    {# fill a blank row for beauty #}
+                    <tr style="height: 2.6em;">
+                        <th></th>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <button type="button" class="btn btn-panel" id="videoDetail">
+                <span class="glyphicon glyphicon-facetime-video"></span>Videos
+            </button>
+        </div>
+        <div class="row collapse videoCollapse" style="margin-bottom: 2em;">
+            <div class="col-md-6">
+                <video controls>
+                    <source src="/static/cache/infer/original_{{ checked_video_name }}.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="col-md-6">
+                <video controls>
+                    <source src="/static/cache/infer/blend_{{ checked_video_name }}.mp4" type="video/mp4">
+                </video>
+            </div>
+        </div>
+        <div class="row">
+            <button type="button" class="btn btn-panel" id="frameDetail">
+                <span class="glyphicon glyphicon-zoom-in"></span>Frames
+            </button>
+        </div>
+        <div class="row collapse frameCollapse">
+            <div class="col-md-6">
                 {% for p in checked_frame_path %}
                     <img src="{{ url_for('static', filename=p) }}"/>
                     <div class="caption">{{ loop.index }}</div>
                 {% endfor %}
             </div>
-            <div class="col-md-5">
+            <div class="col-md-6">
                 {% for p in checked_infer_path %}
                     <img src="{{ url_for('static', filename=p) }}"/>
                     <div class="caption">{{ loop.index }}</div>
