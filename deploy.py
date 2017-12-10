@@ -13,7 +13,7 @@ from scipy.misc import imread, imsave, imresize
 from utils import convert_to_frames
 from unet.model import UNetVanilla
 from unet.helper import remove_watermark, post_process, \
-    traditional_seg, fitting_curve, blend
+    traditional_seg, fitting_curve, blend, interp1d_curve
 
 assert torch.cuda.is_available(), 'Error: CUDA not found!'
 
@@ -59,21 +59,22 @@ def do_deploy():
                 warnings.simplefilter("ignore")
                 display = post_process(y) * 255
             try:
-                thickness, curve_mask = fitting_curve(display)
+                # thickness, (xs, y_up, y_lw) = fitting_curve(display)
+                thickness, (xs, y_up, y_lw) = interp1d_curve(display)
             except (IndexError, TypeError):
-                thickness, curve_mask = 0, None
+                thickness, (xs, y_up, y_lw) = 0, [None] * 3
                 tqdm.write('Oops, fail to detect {}th frame...'.format(i))
 
             # Append and save results
             primary_results.append(
-                    {'index': i - 1, 'thick': thickness, 'curve_mask': curve_mask})
+                    {'index': i - 1, 'thick': thickness, 'xs': xs, 'y_up': y_up, 'y_lw': y_lw})
 
             # Save and Display
             deploy_dir = ['static/cache/infer/{}/{}'.format(video_name, subdir) for subdir in ['bw', 'blend']]
             [os.makedirs(dd) for dd in deploy_dir if not os.path.exists(dd)]
 
             imsave(deploy_dir[0] + '/{:03d}.jpg'.format(i), display)
-            imsave(deploy_dir[1] + '/{:03d}.jpg'.format(i), blend(im, display, curve_mask))
+            imsave(deploy_dir[1] + '/{:03d}.jpg'.format(i), blend(im, display, [xs, y_up, y_lw]))
 
         np.save('static/cache/infer/primary_results_{}.npy'.format(video_name), primary_results)
 
@@ -96,7 +97,7 @@ def generate_video():
 if __name__ == '__main__':
     torch.cuda.set_device(0)
     # 1. Generate all frames of the video in the repository
-    # [convert_to_frames(video_name) for video_name in os.listdir('repo')]
+    [convert_to_frames(video_name) for video_name in os.listdir('repo')]
     # 2. Do the deploy
     do_deploy()
     # 3. Output the video for visualization

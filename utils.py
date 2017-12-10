@@ -5,6 +5,7 @@ import numpy as np
 from operator import itemgetter
 from itertools import groupby
 from scipy.misc import imsave
+from scipy.cluster import vq
 from collections import Counter
 
 
@@ -39,12 +40,25 @@ def isolate_bound(im):
     Argument:
         im: (array) black-and-white image
     Returns:
-        upper: array([x, ...], [y, ...]), the row index is relatively smaller
-        lower: array([x, ...], [y, ...]), the row index is relatively bigger
+        xs: (array) the sequential column index of input image
+        y_up: (array) the row index which is relatively smaller
+        y_lw: (array) the row index which is relatively larger
     """
-    x_sort = sorted(list(zip(*np.where(im > 0)[::-1])))
-    upper, lower = [np.array(list(zip(*x_sort[i::2]))) for i in [0, 1]]
-    return upper, lower
+    coords = sorted(list(zip(*np.where(im > 0)[::-1])))
+    d = {}
+    for key, value in coords:
+        d[key] = d.get(key, []) + [value]
+
+    if len(coords) & 1:
+        # something wrong with the mask, where y is not a unique mapping of x
+        # say the two pixels in x-axis is identical
+        bad = {key: d[key] for key in d if len(d[key]) > 2}
+        for k, v in bad.items():
+            d[k] = vq.kmeans(np.array(v, dtype=float), 2)[0].astype(int).tolist()
+
+    xs, ys = [*d.keys()], [v for dv in d.values() for v in dv]
+    y_up, y_lw = [ys[i::2] for i in [0, 1]]
+    return [np.array(item) for item in [xs, y_up, y_lw]]
 
 
 def compute_curvature(primary_item, roi_deviation=50, im_width=576):
@@ -55,16 +69,10 @@ def compute_curvature(primary_item, roi_deviation=50, im_width=576):
     """
     middle = im_width // 2
     xn = range(middle - roi_deviation, middle + roi_deviation)
-    roi = primary_item['curve_mask'][:, xn]
-
-    # upper, lower = isolate_bound(roi)
-    # f_up, f_lw = [np.poly1d(np.polyfit(x, y, 2)) for x, y in [upper, lower]]
-    # up, lw = [np.polyval(np.polyder(item), xn).mean() for item in [f_up, f_lw]]
-    # return up + lw
 
     # Permute to (x, y) and sort by x-axis
-    upper, _ = isolate_bound(roi)
-    f_up = np.poly1d(np.polyfit(*upper, 2))
+    xs, y_up, y_lw = [primary_item.get(key)[xn] for key in ['xs', 'y_up', 'y_lw']]
+    f_up = np.poly1d(np.polyfit(xs, y_up, 2))
     # Derivative and compute the curvature in interested range
     up = np.polyval(np.polyder(f_up), xn).mean()
     # Care about the front surface
@@ -83,11 +91,11 @@ def get_applanation_time(curvatures, value):
 
 
 def get_applanation_length(primary_item):
-    (x, y), _ = isolate_bound(primary_item['curve_mask'])
-    y_common = Counter(y).most_common(2)[0][0]
-    x_common = x[np.where(y == y_common)]
+    x, y = [primary_item.get(key) for key in ['xs', 'y_up']]  # upper
+    y_most = list(map(itemgetter(0), Counter(y).most_common(2)))
+    x_most = x[np.where((y >= min(y_most)) & (y <= max(y_most)))]
 
     # find the longest continuous x indexes
     candidate = [list(map(itemgetter(1), g))
-               for _, g in groupby(enumerate(sorted(x_common)), lambda i: i[0] - i[1])]  # index[0], value[1]
+                 for _, g in groupby(enumerate(sorted(x_most)), lambda i: i[0] - i[1])]  # index[0], value[1]
     return len(sorted(candidate, key=len)[-1])

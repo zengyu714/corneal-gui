@@ -68,15 +68,6 @@ def clear_repo():
     return render_template('index.html', **locals())
 
 
-def run_in_subprocess():
-    proc = subprocess.Popen(
-            [INTERPRETER_PATH + ' deploy.py'],
-            shell=True,
-            stdout=subprocess.PIPE,
-            universal_newlines=True)
-    return proc
-
-
 @app.route('/run_all')
 def run_all():
     if not is_already_executed():
@@ -87,6 +78,15 @@ def run_all():
     else:
         flash('Already done, please select and inspect one video directly.')
     return redirect('/')
+
+
+def run_in_subprocess():
+    proc = subprocess.Popen(
+            [INTERPRETER_PATH + ' deploy.py'],
+            shell=True,
+            stdout=subprocess.PIPE,
+            universal_newlines=True)
+    return proc
 
 
 @app.route('/yield')
@@ -127,7 +127,7 @@ def inspect(checked_video_name):
     print(first_AT, second_AT, '-' * 30, 'first_AT', 'second_AT')
 
     first_AL, second_AL = [get_applanation_length(primary_dicts[AT - 1]) for AT in [first_AT, second_AT]]
-    print(first_AL, second_AL,  '-' * 30, 'first_AL', 'second_AL')
+    print(first_AL, second_AL, '-' * 30, 'first_AL', 'second_AL')
 
     keys_1 = ['The first applanation time, 1AT',
               '1AL', 'V_in', '2AT', '2AL', 'V_out',
