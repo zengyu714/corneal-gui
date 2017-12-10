@@ -158,8 +158,8 @@
                                         }
                                     },
                                     name: '厚度：像素',
-                                    min: 21,
-                                    max: 26,
+                                    min: {{ min_thick }} - 0.5,
+                                    max: {{ max_thick }} + 1.2,
                                     position: 'left',
                                     axisLabel: {
                                         formatter: '{value}'
@@ -185,8 +185,6 @@
                                         }
                                     },
                                     name: '曲率',
-                                    min: -1,
-                                    max: 1,
                                     position: 'right',
                                     axisLabel: {
                                         formatter: '{value}'
@@ -251,7 +249,7 @@
                                 markPoint: {
                                     data: [
                                         {
-                                            type: 'min', name: '最小值',
+                                            type: 'max', name: '最大值',
                                             itemStyle: {
                                                 normal: {
                                                     color: '#01bc8f',

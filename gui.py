@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+
 import numpy as np
 
 from scipy.signal import savgol_filter
@@ -12,7 +13,8 @@ from flask_bootstrap import Bootstrap
 from flask_dropzone import Dropzone
 
 from utils import convert_to_frames, is_already_executed, \
-    compute_curvature, get_applanation_time, get_applanation_length
+    compute_curvature, get_applanation_time, get_applanation_length, get_applanation_velocity, \
+    get_deformation_amplitude, get_peak_distance
 
 INTERPRETER_PATH = '/usr/local/bin/anaconda2/envs/pytorch/bin/python'
 
@@ -68,18 +70,6 @@ def clear_repo():
     return render_template('index.html', **locals())
 
 
-@app.route('/run_all')
-def run_all():
-    if not is_already_executed():
-        flash('Take around 8 s/video, click the ✈ above to see console output details.')
-        yeild()
-    elif not os.listdir('./repo'):
-        flash('No video in the repository.')
-    else:
-        flash('Already done, please select and inspect one video directly.')
-    return redirect('/')
-
-
 def run_in_subprocess():
     proc = subprocess.Popen(
             [INTERPRETER_PATH + ' deploy.py'],
@@ -89,15 +79,23 @@ def run_in_subprocess():
     return proc
 
 
-@app.route('/yield')
-def yeild():
-    def inner():
+@app.route('/run_all')
+def run_all():
+    if not is_already_executed():
         proc = run_in_subprocess()
         for line in iter(proc.stdout.readline, ''):
-            yield line.rstrip() + '<br/>\n'
-
-    # text/html is required for most browsers to show th$
-    return Response(inner(), mimetype='text/html')
+            line = line.strip()
+            if line.startswith('===>'):
+                flash(line)
+            elif line.startswith('Oops'):
+                flash('Please take a look at {} frame'.format(line.split()[-2]))
+            print(line)
+        flash('===> Done')
+    elif not os.listdir('./repo'):
+        flash('No video in the repository.')
+    else:
+        flash('Already done, please select and inspect one video directly.')
+    return redirect('/')
 
 
 @app.route('/inspect/<string:checked_video_name>')
@@ -116,38 +114,34 @@ def inspect(checked_video_name):
     # Charts
     primary_dicts = np.load('static/cache/infer/primary_results_{}.npy'.format(checked_video_name))
     video_length = len(primary_dicts)
-    # line_xs = [*range(1, video_length + 1)]
     thick_data = [round(pd['thick'], 3) for pd in primary_dicts]
     curvatures = [round(compute_curvature(pd), 3) for pd in primary_dicts]
     # smooth
-    thick_data_smoothed = [round(i, 3) for i in savgol_filter(thick_data, 13, 2)]
-    curvatures_smoothed = [round(i, 3) for i in savgol_filter(curvatures, 13, 2)]
+    thick_data_smoothed = [round(i, 3) for i in savgol_filter(thick_data, 7, 2)]
+    curvatures_smoothed = [round(i, 3) for i in savgol_filter(curvatures, 7, 2)]
+    min_thick, max_thick = [int(func(thick_data_smoothed)) for func in [min, max]]
     # Bio-parameters
     first_AT, second_AT, HC_time = get_applanation_time(curvatures_smoothed, 0)
-    print(first_AT, second_AT, '-' * 30, 'first_AT', 'second_AT')
+    (first_AL, first_y_flat), (second_AL, second_y_flat) = [get_applanation_length(primary_dicts[AT - 1])
+                                                            for AT in [first_AT, second_AT]]
+    v_in, v_out = get_applanation_velocity(primary_dicts, first_AT, second_AT, first_y_flat, second_y_flat)
+    da = get_deformation_amplitude(primary_dicts, HC_time)
+    pd = get_peak_distance(primary_dicts, HC_time)
 
-    first_AL, second_AL = [get_applanation_length(primary_dicts[AT - 1]) for AT in [first_AT, second_AT]]
-    print(first_AL, second_AL, '-' * 30, 'first_AL', 'second_AL')
-
-    keys_1 = ['The first applanation time, 1AT',
-              '1AL', 'V_in', '2AT', '2AL', 'V_out',
-              'CCT', 'HC_time', 'DA', 'PD'
-              ]
     # 15 is frame rate
     bio_params_1 = {
-        'The first applanation time, 1AT'                         : first_AT / 15.0,
-        'The first applanation length, 1AL'                       : 0,
-        'The first applanation velocity, V_in'                    : 0,
-        'The second applanation time, 2AT'                        : second_AT / 15.0,
-        'The second applanation length, 2AL'                      : 0,
-        'The second applanation velocity, V_out'                  : 0,
-        'Central corneal thickness, CCT'                          : 'see chart below',
-        'Time from the start until the highest concavity, HC_time': HC_time / 15.0,
-        'Deformation amplitude, DA'                               : 0,
-        'Peak distance, PD'                                       : 0
-    }
+        'The first applanation time, 1AT'          : '{:>10.2f} s'.format(first_AT / 15.0),
+        'The first applanation length, 1AL'        : '{:>10.0f} pixels'.format(first_AL),
+        'The first applanation velocity, V_in'     : '{:>10.2f} pixels/s'.format(v_in),
+        'The second applanation time, 2AT'         : '{:>10.2f} s'.format(second_AT / 15.0),
+        'The second applanation length, 2AL'       : '{:>10.0f} pixels'.format(second_AL),
+        'The second applanation velocity, V_out'   : '{:>10.2f} pixels/s'.format(v_out),
+        'Start ==> highest concavity time, HC_time': '{:>10.2f} s'.format(HC_time / 15.0),
+        'Deformation amplitude, DA'                : '{:>10.0f} pixels'.format(da),
+        'Peak distance, PD'                        : '{:>10.0f} pixels'.format(pd),
+        'Central corneal thickness, CCT'           : 'see chart below',
 
-    bio_params_1 = dict.fromkeys(keys_1, 0.0)
+    }
 
     keys_2 = ['V_in_max', 'V_out_max', 'V_creep', 'CCD', 'HC_radius',
               'MA', 'MA_time', 'A_absorbed', 'S_TSC']

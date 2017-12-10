@@ -22,10 +22,11 @@ def blend(image, label, coords=[None] * 3, alpha=0.3):
         # curve_mask = curve_mask[..., None]  # for broadcast
         # rgb += curve_mask * 0.5
         xs, y_up_fit, y_lw_fit = coords
-        curve_mask = np.zeros_like(label)
-        curve_mask[y_up_fit.astype(int), xs] = 255
-        curve_mask[y_lw_fit.astype(int), xs] = 255
-        rgb[..., 1] += curve_mask * 0.5  # add to blue channel
+        if len(xs) == len(y_up_fit) == len(y_lw_fit):
+            curve_mask = np.zeros_like(label)
+            curve_mask[y_up_fit.astype(int), xs] = 255
+            curve_mask[y_lw_fit.astype(int), xs] = 255
+            rgb[..., 1] += curve_mask * 0.5  # add to blue channel
     # vis.image(rgb.transpose(2, 0, 1))
     return rgb.astype(np.uint8)
 

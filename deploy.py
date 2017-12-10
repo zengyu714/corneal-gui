@@ -23,7 +23,6 @@ model = UNetVanilla()
 weights = torch.load('unet/weights/UNetVanilla_best.pth')
 model.load_state_dict(weights)
 model.eval().cuda()
-print('\n\n', ' Loading model '.center(110, '='))
 # template: binary image of watermark
 # surround: dilated template for later computation of surrounding intensity
 template_bw, surround_bw = [np.load('unet/weights/{}.npy'.format(f))
@@ -35,7 +34,7 @@ template_bw, surround_bw = [np.load('unet/weights/{}.npy'.format(f))
 def do_deploy():
     for video_name in os.listdir('repo'):
         video_name = video_name[:-4]
-        print('\n\n', ' Processing video: 【{}.avi】 '.format(video_name).center(120, '='))
+        print('===> Processing video 【{}.avi】...'.format(video_name))
         frame_paths = sorted(glob('static/cache/frame/{}/*.jpg'.format(video_name)))
 
         primary_results = []
@@ -82,7 +81,7 @@ def do_deploy():
 def generate_video():
     for video_name in os.listdir('repo'):
         video_name = video_name[:-4]
-        print('\n\n', ' Generating inferred video: 【{}.mp4】 '.format(video_name).center(120, '='))
+        # print('===> Generating inferred video 【{}.mp4】'.format(video_name))
         # Generate inferred video and make original frames into video in mp4 format
         with imageio.get_writer('static/cache/infer/blend_{}.mp4'.format(video_name), mode='I') as writer:
             for im_path in sorted(glob('static/cache/infer/{}/blend/*.jpg'.format(video_name))):
