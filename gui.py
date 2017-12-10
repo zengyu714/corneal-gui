@@ -1,6 +1,9 @@
 import os
 import shutil
 import subprocess
+import numpy as np
+
+from scipy.signal import savgol_filter
 
 from flask import Flask, flash, redirect, render_template, request, session, abort, url_for, Response
 from flask import send_from_directory
@@ -8,7 +11,8 @@ from flask import send_from_directory
 from flask_bootstrap import Bootstrap
 from flask_dropzone import Dropzone
 
-from utils import convert_to_frames, is_already_executed
+from utils import convert_to_frames, is_already_executed, \
+    compute_curvature, get_applanation_time, get_applanation_length
 
 INTERPRETER_PATH = '/usr/local/bin/anaconda2/envs/pytorch/bin/python'
 
@@ -109,9 +113,42 @@ def inspect(checked_video_name):
         p = os.path.dirname(p).replace('frame', 'infer')
         checked_infer_path.append(os.path.join(p, 'blend', i))
 
-    keys_1 = ['1AT', '1AL', 'V_in', '2AT', '2AL', 'V_out',
-              'CCT', 'HC_time', 'DA', 'PD']
+    # Charts
+    primary_dicts = np.load('static/cache/infer/primary_results_{}.npy'.format(checked_video_name))
+    video_length = len(primary_dicts)
+    # line_xs = [*range(1, video_length + 1)]
+    thick_data = [round(pd['thick'], 3) for pd in primary_dicts]
+    curvatures = [round(compute_curvature(pd), 3) for pd in primary_dicts]
+    # smooth
+    thick_data_smoothed = [round(i, 3) for i in savgol_filter(thick_data, 13, 2)]
+    curvatures_smoothed = [round(i, 3) for i in savgol_filter(curvatures, 13, 2)]
+    # Bio-parameters
+    first_AT, second_AT, HC_time = get_applanation_time(curvatures_smoothed, 0)
+    print(first_AT, second_AT, '-' * 30, 'first_AT', 'second_AT')
+
+    first_AL, second_AL = [get_applanation_length(primary_dicts[AT - 1]) for AT in [first_AT, second_AT]]
+    print(first_AL, second_AL,  '-' * 30, 'first_AL', 'second_AL')
+
+    keys_1 = ['The first applanation time, 1AT',
+              '1AL', 'V_in', '2AT', '2AL', 'V_out',
+              'CCT', 'HC_time', 'DA', 'PD'
+              ]
+    # 15 is frame rate
+    bio_params_1 = {
+        'The first applanation time, 1AT'                         : first_AT / 15.0,
+        'The first applanation length, 1AL'                       : 0,
+        'The first applanation velocity, V_in'                    : 0,
+        'The second applanation time, 2AT'                        : second_AT / 15.0,
+        'The second applanation length, 2AL'                      : 0,
+        'The second applanation velocity, V_out'                  : 0,
+        'Central corneal thickness, CCT'                          : 'see chart below',
+        'Time from the start until the highest concavity, HC_time': HC_time / 15.0,
+        'Deformation amplitude, DA'                               : 0,
+        'Peak distance, PD'                                       : 0
+    }
+
     bio_params_1 = dict.fromkeys(keys_1, 0.0)
+
     keys_2 = ['V_in_max', 'V_out_max', 'V_creep', 'CCD', 'HC_radius',
               'MA', 'MA_time', 'A_absorbed', 'S_TSC']
     bio_params_2 = dict.fromkeys(keys_2, 0.0)

@@ -1,13 +1,16 @@
 /*.row {*/
-    /*border: #5ac3ff solid 1px;*/
+/*border: #5ac3ff solid 1px;*/
 /*}*/
 
 /*.col-md-8 {*/
-    /*border: #ff8794 solid 1px;*/
+/*border: #ff8794 solid 1px;*/
 /*}*/
 
 .col-md-4 {
     padding: 0;
+}
+.col-md-11 {
+    margin-left: 5em;
 }
 
 a, a:hover, a:focus {
@@ -45,6 +48,10 @@ h3 {
     color: #fbfff9
 }
 
+.alert-danger {
+    margin: 10px 21px;
+}
+
 .glyphicon {
     font-size: 23px;
 }
@@ -66,6 +73,11 @@ h3 {
 .glyphicon-zoom-in {
     margin-left: -207px;
     margin-right: 10px;
+}
+
+.glyphicon-stats {
+    margin-left: -221px;
+    margin-right: 12px;
 }
 
 .glyphicon-plane {

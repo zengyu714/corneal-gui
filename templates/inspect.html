@@ -52,6 +52,229 @@
             </div>
         </div>
         <div class="row">
+            <button type="button" class="btn btn-panel" id="chartDetail">
+                <span class="glyphicon glyphicon-stats"></span>Charts
+            </button>
+        </div>
+        <div class="row collapse chartCollapse" style="margin-bottom: 2em;">
+            <div class="col-md-11">
+                <script type="text/javascript" src="{{ url_for('static', filename='js/echarts.min.js') }}"></script>
+                <div id="main" style="width: 1000px; height:400px; margin-top: 1em;"></div>
+                <script type="text/javascript">
+                    // 基于准备好的dom，初始化echarts实例
+                    var myChart = echarts.init(document.getElementById('main'));
+
+                    function gen_xs_from_1(n) {
+                        // create a array, from 1 to n, including n
+
+                        var arr = Array(n);
+                        for (var ii = 0; ii < n; ii++) {
+                            arr[ii] = String(ii + 1);
+                        }
+                        return arr;
+                    }
+
+                    // 指定图表的配置项和数据
+                    var option = {
+                        backgroundColor: '#010c2c',
+                        title: {
+                            text: "中央角膜区域",
+                            left: '40.6%',
+                            top: '0.7%',
+                            textStyle: {
+                                color: '#f2f2f2',
+                            }
+                        },
+                        legend: {
+                            data: ['厚度', '厚度-平滑', '曲率', '曲率-平滑'],
+                            left: '32%',
+                            top: '11%',
+                            textStyle: {
+                                color: '#878787',
+                            }
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        toolbox: {
+                            show: true,
+                            feature: {
+                                dataZoom: {
+                                    yAxisIndex: 'none',
+                                },
+                                dataView: {readOnly: false},
+                                magicType: {type: ['line', 'bar']},
+                                restore: {},
+                                saveAsImage: {}
+                            }
+                        },
+                        grid: {
+                            left: '4%',
+                            right: '7%',
+                            top: '18%',
+                            bottom: '10%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'category',
+                            boundaryGap: false,
+                            splitLine: {
+                                show: false
+                            },
+                            "axisLine": {
+                                lineStyle: {
+                                    color: '#5c5d89'
+                                }
+                            },
+                            "axisTick": {
+                                "show": false
+                            },
+                            axisLabel: {
+                                textStyle: {
+                                    color: '#5c5d89'
+                                }
+                            },
+                            data: gen_xs_from_1({{ video_length }})
+                        },
+                        yAxis:
+                            [
+                                {
+                                    type: 'value',
+                                    axisLine: {
+                                        show: false,
+                                        lineStyle: {
+                                            color: '#5c5d89'
+                                        }
+                                    },
+                                    axisTick: {
+                                        show: false
+                                    },
+                                    splitLine: {
+                                        show: false
+                                    },
+                                    axisLabel: {
+                                        textStyle: {
+                                            color: '#5c5d89'
+                                        }
+                                    },
+                                    name: '厚度：像素',
+                                    min: 21,
+                                    max: 26,
+                                    position: 'left',
+                                    axisLabel: {
+                                        formatter: '{value}'
+                                    }
+                                },
+                                {
+                                    type: 'value',
+                                    axisLine: {
+                                        show: false,
+                                        lineStyle: {
+                                            color: '#5c5d89'
+                                        }
+                                    },
+                                    axisTick: {
+                                        show: false
+                                    },
+                                    splitLine: {
+                                        show: false
+                                    },
+                                    axisLabel: {
+                                        textStyle: {
+                                            color: '#5c5d89'
+                                        }
+                                    },
+                                    name: '曲率',
+                                    min: -1,
+                                    max: 1,
+                                    position: 'right',
+                                    axisLabel: {
+                                        formatter: '{value}'
+                                    }
+                                },
+                            ],
+
+                        series: [
+                            {
+                                name: '厚度',
+                                type: 'line',
+                                itemStyle: {
+                                    normal: {
+                                        color: '#a173ed',
+                                    },
+                                },
+                                data: {{ thick_data }},
+                            },
+                            {
+                                name: '厚度-平滑',
+                                type: 'line',
+                                itemStyle: {
+                                    normal: {
+                                        color: '#e6ed82',
+                                    },
+                                },
+                                data: {{ thick_data_smoothed }},
+                                markPoint: {
+                                    data: [
+                                        {
+                                            type: 'min', name: '最小值',
+                                            itemStyle: {
+                                                normal: {
+                                                    color: '#bc89ab',
+                                                },
+                                            },
+                                        }
+                                    ]
+                                },
+                            },
+                            {
+                                name: '曲率',
+                                type: 'line',
+                                yAxisIndex: 1,
+                                itemStyle: {
+                                    normal: {
+                                        color: '#02b5d5',
+                                    },
+                                },
+                                data: {{ curvatures }},
+                            },
+                            {
+                                name: '曲率-平滑',
+                                type: 'line',
+                                yAxisIndex: 1,
+                                itemStyle: {
+                                    normal: {
+                                        color: '#e7fff6',
+                                    },
+                                },
+                                data: {{ curvatures_smoothed }},
+                                markPoint: {
+                                    data: [
+                                        {
+                                            type: 'min', name: '最小值',
+                                            itemStyle: {
+                                                normal: {
+                                                    color: '#01bc8f',
+                                                },
+                                            },
+                                        }
+                                    ]
+                                },
+                                markLine: {
+                                    data: [
+                                        {yAxis: 0, name: '压平'}
+                                    ]
+                                }
+                            }
+                        ]
+                    };
+
+                    // 使用刚指定的配置项和数据显示图表。
+                    myChart.setOption(option);
+                </script>
+            </div>
+        </div>
+        <div class="row">
             <button type="button" class="btn btn-panel" id="videoDetail">
                 <span class="glyphicon glyphicon-facetime-video"></span>Videos
             </button>
@@ -89,3 +312,11 @@
         </div>
     </div>
 {% endblock %}
+
+{#{% block scripts %}#}
+{#    <script language="JavaScript" type="text/javascript"#}
+{#            src="{{ url_for('static', filename='js/echarts.min.js') }}"></script>#}
+{#    <script language="JavaScript" type="text/javascript"#}
+{#            src="{{ url_for('static', filename='js/echarts-gl.min.js') }}"></script>#}
+{#    {{ super() }}#}
+{#{% endblock %}#}

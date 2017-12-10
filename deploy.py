@@ -37,7 +37,8 @@ def do_deploy():
         video_name = video_name[:-4]
         print('\n\n', ' Processing video: 【{}.avi】 '.format(video_name).center(120, '='))
         frame_paths = sorted(glob('static/cache/frame/{}/*.jpg'.format(video_name)))
-        thicks = []
+
+        primary_results = []
         for i, p in tqdm(enumerate(frame_paths, start=1), file=sys.stdout,
                          total=len(frame_paths), unit=' frames', dynamic_ncols=True):
             im = remove_watermark(imread(p, mode='L'), template_bw, surround_bw)
@@ -59,11 +60,13 @@ def do_deploy():
                 display = post_process(y) * 255
             try:
                 thickness, curve_mask = fitting_curve(display)
-                thicks.append(thickness)
             except (IndexError, TypeError):
-                curve_mask = None
-                thicks.append(0)
+                thickness, curve_mask = 0, None
                 tqdm.write('Oops, fail to detect {}th frame...'.format(i))
+
+            # Append and save results
+            primary_results.append(
+                    {'index': i - 1, 'thick': thickness, 'curve_mask': curve_mask})
 
             # Save and Display
             deploy_dir = ['static/cache/infer/{}/{}'.format(video_name, subdir) for subdir in ['bw', 'blend']]
@@ -72,7 +75,7 @@ def do_deploy():
             imsave(deploy_dir[0] + '/{:03d}.jpg'.format(i), display)
             imsave(deploy_dir[1] + '/{:03d}.jpg'.format(i), blend(im, display, curve_mask))
 
-        np.save('static/cache/infer/thickness_{}.npy'.format(video_name), thicks)
+        np.save('static/cache/infer/primary_results_{}.npy'.format(video_name), primary_results)
 
 
 def generate_video():
@@ -93,7 +96,7 @@ def generate_video():
 if __name__ == '__main__':
     torch.cuda.set_device(0)
     # 1. Generate all frames of the video in the repository
-    [convert_to_frames(video_name) for video_name in os.listdir('repo')]
+    # [convert_to_frames(video_name) for video_name in os.listdir('repo')]
     # 2. Do the deploy
     do_deploy()
     # 3. Output the video for visualization

@@ -38,6 +38,10 @@ $(document).ready(function () {
         $(".bioParamCollapse").collapse('toggle');
     });
 
+    $("#chartDetail").click(function () {
+        $(".chartCollapse").collapse('toggle');
+    });
+
     // $(".btn-success").click(function(){
     //     $(".collapse").collapse('show');
     // });
