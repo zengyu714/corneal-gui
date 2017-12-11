@@ -5,10 +5,14 @@
 /*.col-md-8 {*/
 /*border: #ff8794 solid 1px;*/
 /*}*/
+td {
+    background-color: rgba(209, 235, 222, 0.45);
+}
 
 .col-md-4 {
     padding: 0;
 }
+
 .col-md-11 {
     margin-left: 5em;
 }

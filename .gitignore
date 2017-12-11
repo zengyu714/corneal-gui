@@ -155,5 +155,7 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-
+# Data folder
 unet/weights/*
+static/cache/*
+repo/*

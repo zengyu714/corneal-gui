@@ -14,7 +14,9 @@ from flask_dropzone import Dropzone
 
 from utils import convert_to_frames, is_already_executed, \
     compute_curvature, get_applanation_time, get_applanation_length, get_applanation_velocity, \
-    get_deformation_amplitude, get_peak_distance, generate_bar3d_curve
+    get_deformation_amplitude, get_peak_distance_and_hc_radius, generate_scatter3d_curve, get_peak_stat, \
+    get_max_deformation_area, get_max_deformation_time, get_corneal_contour_deformation, get_energy_absorbed_area_and_k, \
+    corneal_creep_rate
 
 INTERPRETER_PATH = '/usr/local/bin/anaconda2/envs/pytorch/bin/python'
 
@@ -114,54 +116,57 @@ def inspect(checked_video_name):
     # Charts
     primary_dicts = np.load('static/cache/infer/primary_results_{}.npy'.format(checked_video_name))
     video_length = len(primary_dicts)
-    thick_data = [round(pd['thick'], 3) for pd in primary_dicts]
+    thick_data = [round(pd['thick'] * 0.0165, 3) for pd in primary_dicts]
+    thick_data_smoothed = [round(i, 3) for i in savgol_filter(thick_data, 7, 2)]
+    min_thick, max_thick = [func(thick_data_smoothed) for func in [min, max]]
     curvatures = [round(compute_curvature(pd), 3) for pd in primary_dicts]
+    curvatures_smoothed = [round(i, 3) for i in savgol_filter(curvatures, 7, 2)]
 
-    # curve3d_lw = generate_bar3d_curve(primary_dicts, curve_type='y_lw')
-    curve3d_up = generate_bar3d_curve(primary_dicts, curve_type='y_up')
+    # curve3d_lw = generate_scatter3d_curve(primary_dicts, curve_type='y_lw')
+    curve3d_up = generate_scatter3d_curve(primary_dicts, curve_type='y_up')
     min_height, max_height = [int(func([i[2] for i in curve3d_up])) for func in [min, max]]
 
-    # smooth
-    thick_data_smoothed = [round(i, 3) for i in savgol_filter(thick_data, 7, 2)]
-    curvatures_smoothed = [round(i, 3) for i in savgol_filter(curvatures, 7, 2)]
-    min_thick, max_thick = [int(func(thick_data_smoothed)) for func in [min, max]]
     # Bio-parameters
     first_AT, second_AT, HC_time = get_applanation_time(curvatures_smoothed, 0)
     (first_AL, first_y_flat), (second_AL, second_y_flat) = [get_applanation_length(primary_dicts[AT - 1])
                                                             for AT in [first_AT, second_AT]]
     v_in, v_out = get_applanation_velocity(primary_dicts, first_AT, second_AT, first_y_flat, second_y_flat)
     da = get_deformation_amplitude(primary_dicts, HC_time)
-    pd = get_peak_distance(primary_dicts, HC_time)
+    pd, hc_radius, peak_x_1, peak_x_2 = get_peak_distance_and_hc_radius(primary_dicts, HC_time)
 
-    # 15 is frame rate
+    # 0.231 ms/frame
+    x_scale = 0.015625
+    y_scale = 0.0165
     bio_params_1 = {
-        'The first applanation time, 1AT'          : '{:>10.2f} s'.format(first_AT / 15.0),
-        'The first applanation length, 1AL'        : '{:>10.0f} pixels'.format(first_AL),
-        'The first applanation velocity, V_in'     : '{:>10.2f} pixels/s'.format(v_in),
-        'The second applanation time, 2AT'         : '{:>10.2f} s'.format(second_AT / 15.0),
-        'The second applanation length, 2AL'       : '{:>10.0f} pixels'.format(second_AL),
-        'The second applanation velocity, V_out'   : '{:>10.2f} pixels/s'.format(v_out),
-        'Start ==> highest concavity time, HC_time': '{:>10.2f} s'.format(HC_time / 15.0),
-        'Deformation amplitude, DA'                : '{:>10.0f} pixels'.format(da),
-        'Peak distance, PD'                        : '{:>10.0f} pixels'.format(pd),
-        'Central corneal thickness, CCT'           : 'see chart below',
+        'The first applanation time, 1AT'          : '{:.2f} ms'.format(first_AT * 0.231),
+        'The first applanation length, 1AL'        : '{:.2f} mm'.format(first_AL * x_scale),
+        'The first applanation velocity, V_in'     : '{:.2f} mm/ms'.format(v_in * y_scale),
+        'The second applanation time, 2AT'         : '{:.2f} ms'.format(second_AT * 0.231),
+        'The second applanation length, 2AL'       : '{:.2f} mm'.format(second_AL * x_scale),
+        'The second applanation velocity, V_out'   : '{:.2f} mm/ms'.format(v_out * y_scale),
+        'Start ==> highest concavity time, HC_time': '{:.2f} ms'.format(HC_time * 0.231),
+        'Deformation amplitude, DA'                : '{:.2f} mm'.format(da * y_scale),
+        'Peak distance, PD'                        : '{:.2f} mm'.format(pd * x_scale),
     }
 
-    keys_2 = ['V_in_max', 'V_out_max', 'V_creep', 'CCD', 'HC_radius',
-              'MA', 'MA_time', 'A_absorbed', 'S_TSC']
+    peak_deviation, v_inward = get_peak_stat(primary_dicts, HC_time)
+    ma = get_max_deformation_area(primary_dicts, HC_time, peak_x_1, peak_x_2)
+    ma_time = get_max_deformation_time(curvatures, HC_time)
+    v_ccr = corneal_creep_rate(peak_deviation)
+    ccd = get_corneal_contour_deformation(primary_dicts, HC_time)
+    e_absorbed, k = get_energy_absorbed_area_and_k(peak_deviation)
+
     bio_params_2 = {
-        'Central curvature radius at, HC HC_radius'  : 0,
-        'Maximum corneal inward velocity, V_in_max'  : 0,
-        'Maximum corneal outward velocity, V_out_max': 0,
-        'Corneal creep rate, V_creep'                : 0,
-        'Corneal contour deformation, CCD'           : 0,
-        'Maximum deformation area, MA'               : 0,
-        'Maximum deformation area time, MA_time'     : 0,
-        'Energy absorbed area, A_absorbed'           : 0,
-        'Tangent stiffness coefficient,S_TSC'        : 0,
+        'Central highest curvature radius, HC_r': '{:.2f} mm'.format(hc_radius),
+        'Corneal inward velocity, V_inward'     : '{:.2f} mm/ms'.format(v_inward * y_scale),  # consider 33 to 42
+        'Corneal creep rate, V_creep'           : '{:.2f} mm/ms'.format(v_ccr * y_scale / x_scale),
+        'Corneal contour deformation, CCD'      : '{:.2f} mm'.format(ccd * y_scale),
+        'Maximum deformation area, MA'          : '{:.2f} mm^2'.format(ma * x_scale * y_scale),
+        'Maximum deformation area time, MA_time': '{:.2f} mm/ms'.format(ma_time * y_scale),
+        'Energy absorbed area, A_absorbed'      : '{:.2f} '.format(e_absorbed),
+        'Tangent stiffness coefficient,S_TSC'   : '{:.3f} '.format(k),
+        'Central corneal thickness, CCT'        : 'see chart below',
     }
-
-    bio_params_2 = dict.fromkeys(keys_2, 0.0)
 
     return render_template('inspect.html', **locals())
 

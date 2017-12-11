@@ -43,10 +43,10 @@
                         </tr>
                     {% endfor %}
                     {# fill a blank row for beauty #}
-                    <tr style="height: 2.6em;">
-                        <th></th>
-                        <td></td>
-                    </tr>
+                    {#                    <tr style="height: 2.3em;">#}
+                    {#                        <th></th>#}
+                    {#                        <td></td>#}
+                    {#                    </tr>#}
                     </tbody>
                 </table>
             </div>
@@ -157,9 +157,9 @@
                                             color: '#5c5d89'
                                         }
                                     },
-                                    name: '厚度：像素',
-                                    min: {{ min_thick }} -0.5,
-                                    max: {{ max_thick }} +1.2,
+                                    name: '厚度：毫米(mm)',
+                                    min: {{ min_thick }} - 0.012,
+                                    max: {{ max_thick }} + 0.025,
                                     position: 'left'
                                 },
                                 {
