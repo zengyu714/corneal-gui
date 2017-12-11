@@ -14,7 +14,7 @@ from flask_dropzone import Dropzone
 
 from utils import convert_to_frames, is_already_executed, \
     compute_curvature, get_applanation_time, get_applanation_length, get_applanation_velocity, \
-    get_deformation_amplitude, get_peak_distance
+    get_deformation_amplitude, get_peak_distance, generate_bar3d_curve
 
 INTERPRETER_PATH = '/usr/local/bin/anaconda2/envs/pytorch/bin/python'
 
@@ -116,6 +116,11 @@ def inspect(checked_video_name):
     video_length = len(primary_dicts)
     thick_data = [round(pd['thick'], 3) for pd in primary_dicts]
     curvatures = [round(compute_curvature(pd), 3) for pd in primary_dicts]
+
+    # curve3d_lw = generate_bar3d_curve(primary_dicts, curve_type='y_lw')
+    curve3d_up = generate_bar3d_curve(primary_dicts, curve_type='y_up')
+    min_height, max_height = [int(func([i[2] for i in curve3d_up])) for func in [min, max]]
+
     # smooth
     thick_data_smoothed = [round(i, 3) for i in savgol_filter(thick_data, 7, 2)]
     curvatures_smoothed = [round(i, 3) for i in savgol_filter(curvatures, 7, 2)]
@@ -140,11 +145,22 @@ def inspect(checked_video_name):
         'Deformation amplitude, DA'                : '{:>10.0f} pixels'.format(da),
         'Peak distance, PD'                        : '{:>10.0f} pixels'.format(pd),
         'Central corneal thickness, CCT'           : 'see chart below',
-
     }
 
     keys_2 = ['V_in_max', 'V_out_max', 'V_creep', 'CCD', 'HC_radius',
               'MA', 'MA_time', 'A_absorbed', 'S_TSC']
+    bio_params_2 = {
+        'Central curvature radius at, HC HC_radius'  : 0,
+        'Maximum corneal inward velocity, V_in_max'  : 0,
+        'Maximum corneal outward velocity, V_out_max': 0,
+        'Corneal creep rate, V_creep'                : 0,
+        'Corneal contour deformation, CCD'           : 0,
+        'Maximum deformation area, MA'               : 0,
+        'Maximum deformation area time, MA_time'     : 0,
+        'Energy absorbed area, A_absorbed'           : 0,
+        'Tangent stiffness coefficient,S_TSC'        : 0,
+    }
+
     bio_params_2 = dict.fromkeys(keys_2, 0.0)
 
     return render_template('inspect.html', **locals())

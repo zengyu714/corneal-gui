@@ -131,3 +131,13 @@ def get_peak_distance(primary_dicts, hc_index):
         if x_distance > 200 and y_distance < 5:
             return x_distance
     return -1
+
+
+def generate_bar3d_curve(primary_dicts, curve_type='y_up'):
+    """Show the curve in 3d bar"""
+
+    bar3d_curve = []
+    for i, pd in enumerate(primary_dicts):
+        for j, pd_x in enumerate(pd['xs']):
+            bar3d_curve.append([i, pd_x, -pd[curve_type][j]])
+    return bar3d_curve

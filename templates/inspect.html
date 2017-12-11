@@ -58,11 +58,11 @@
         </div>
         <div class="row collapse chartCollapse" style="margin-bottom: 2em;">
             <div class="col-md-11">
+                <div id="chart-line" style="width: 1000px; height:400px; margin-top: 1em;"></div>
                 <script type="text/javascript" src="{{ url_for('static', filename='js/echarts.min.js') }}"></script>
-                <div id="main" style="width: 1000px; height:400px; margin-top: 1em;"></div>
                 <script type="text/javascript">
                     // 基于准备好的dom，初始化echarts实例
-                    var myChart = echarts.init(document.getElementById('main'));
+                    var myChart = echarts.init(document.getElementById('chart-line'));
 
                     function gen_xs_from_1(n) {
                         // create a array, from 1 to n, including n
@@ -82,7 +82,7 @@
                             left: '40.6%',
                             top: '0.7%',
                             textStyle: {
-                                color: '#f2f2f2',
+                                color: '#f2f2f2'
                             }
                         },
                         legend: {
@@ -90,7 +90,7 @@
                             left: '32%',
                             top: '11%',
                             textStyle: {
-                                color: '#878787',
+                                color: '#878787'
                             }
                         },
                         tooltip: {
@@ -100,7 +100,7 @@
                             show: true,
                             feature: {
                                 dataZoom: {
-                                    yAxisIndex: 'none',
+                                    yAxisIndex: 'none'
                                 },
                                 dataView: {readOnly: false},
                                 magicType: {type: ['line', 'bar']},
@@ -111,8 +111,8 @@
                         grid: {
                             left: '4%',
                             right: '7%',
-                            top: '18%',
-                            bottom: '10%',
+                            top: '22%',
+                            bottom: '7%',
                             containLabel: true
                         },
                         xAxis: {
@@ -121,12 +121,12 @@
                             splitLine: {
                                 show: false
                             },
-                            "axisLine": {
+                            axisLine: {
                                 lineStyle: {
                                     color: '#5c5d89'
                                 }
                             },
-                            "axisTick": {
+                            axisTick: {
                                 "show": false
                             },
                             axisLabel: {
@@ -158,12 +158,9 @@
                                         }
                                     },
                                     name: '厚度：像素',
-                                    min: {{ min_thick }} - 0.5,
-                                    max: {{ max_thick }} + 1.2,
-                                    position: 'left',
-                                    axisLabel: {
-                                        formatter: '{value}'
-                                    }
+                                    min: {{ min_thick }} -0.5,
+                                    max: {{ max_thick }} +1.2,
+                                    position: 'left'
                                 },
                                 {
                                     type: 'value',
@@ -269,6 +266,144 @@
 
                     // 使用刚指定的配置项和数据显示图表。
                     myChart.setOption(option);
+                </script>
+            </div>
+            <div class="col-md-11">
+                <div id="chart-scatter3d" style="width: 1000px; height:600px; margin-top: 2em;"></div>
+                <script src="{{ url_for('static', filename='js/echarts.min.js') }}"></script>
+                <script src="{{ url_for('static', filename='js/echarts-gl.min.js') }}"></script>
+                <script type="text/javascript">
+                    // 基于准备好的dom，初始化echarts实例
+                    var myBar = echarts.init(document.getElementById('chart-scatter3d'));
+
+                    // 指定图表的配置项和数据
+                    myBar.setOption({
+                        title: {
+                            text: "角膜上表面",
+                            left: '40.6%',
+                            top: '0.7%',
+                            textStyle: {
+                                color: '#f2f2f2'
+                            }
+                        },
+                        toolbox: {
+                            show: true,
+                            feature: {
+                                dataView: {readOnly: false},
+                                restore: {},
+                                saveAsImage: {}
+                            }
+                        },
+                        backgroundColor: '#010c2c',
+                        visualMap: {
+                            show: false,
+                            min: {{ min_height }},
+                            max: {{ max_height }},
+                            inRange: {
+                                color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026']
+                            }
+                        },
+                        xAxis3D: {
+                            type: 'value',
+                            name: 'index',
+                            axisPointer: {
+                                label: {
+                                    formatter: function (value) {
+                                        return parseFloat(value).toFixed(0);
+                                    },
+                                    textStyle: {
+                                        color: '#bcfcf5',
+                                        fontWeight: 'bold',
+                                        fontFamily: 'Arial',
+                                        fontSize: '19'
+                                    }
+                                }
+                            }
+                        },
+                        yAxis3D: {
+                            type: 'value',
+                            name: 'width',
+                            axisPointer: {
+                                label: {
+                                    formatter: function (value) {
+                                        return parseFloat(value).toFixed(0);
+                                    },
+                                    textStyle: {
+                                        color: '#bcfcf5',
+                                        fontWeight: 'bold',
+                                        fontFamily: 'Arial',
+                                        fontSize: '19'
+                                    }
+                                }
+                            },
+                        },
+                        zAxis3D: {
+                            type: 'value',
+                            name: 'height',
+                            min: {{ min_height }} -5,
+                            max: {{ max_height }} +5,
+                            axisLabel: {
+                                formatter: function (value) {
+                                    return -value.toFixed(1);
+                                }
+                            },
+                            axisTick: {
+                                show: false
+                            },
+                            axisPointer: {
+                                label: {
+                                    formatter: function (value) {
+                                        return -parseFloat(value).toFixed(2);
+                                    },
+                                    textStyle: {
+                                        color: '#bcfcf5',
+                                        fontWeight: 'bold',
+                                        fontFamily: 'Arial',
+                                        fontSize: '19'
+                                    }
+                                }
+                            },
+
+                        },
+                        grid3D: {
+                            boxDepth: 150,
+                            boxHeight: 90,
+                            boxWidth: 90,
+                            axisLine: {
+                                lineStyle: {color: '#fff'}
+                            },
+                            axisPointer: {
+                                lineStyle: {color: '#fff'},
+
+                            },
+                            viewControl: {
+                                // autoRotate: true
+                            },
+                            light: {
+                                main: {
+                                    shadow: true,
+                                    quality: 'ultra',
+                                    intensity: 1.5
+                                }
+                            },
+                            top: '5%'
+                        },
+                        series: [{
+                            type: 'scatter3D',
+                            data: {{ curve3d_up }},
+                            shading: 'lambert',
+                            label: {
+                                formatter: function (param) {
+                                    return 'i  \t:\t\t' + param.value[0].toFixed(0) +
+                                        '\n\nw\t:\t\t' + param.value[1].toFixed(0) +
+                                        '\n\nh \t:\t\t' + -param.value[2].toFixed(2);
+                                }
+
+                            }
+                        }]
+                    });
+                    window.onresize = myBar.resize;
+
                 </script>
             </div>
         </div>
