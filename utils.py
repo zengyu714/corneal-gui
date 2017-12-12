@@ -1,5 +1,4 @@
 import os
-import csv
 import imageio
 import numpy as np
 

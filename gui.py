@@ -2,8 +2,6 @@ import os
 import shutil
 import subprocess
 
-import numpy as np
-
 from scipy.signal import savgol_filter
 
 from flask import Flask, flash, redirect, render_template, request
@@ -35,7 +33,7 @@ app.config.update(
 
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static/images'), 'favicon.ico', mimetype='image/x-icon')
+    return send_from_directory(os.path.join(app.root_path, 'static/images'), 'favicon.png', mimetype='image/x-icon')
 
 
 @app.route('/', methods=['GET', 'POST'])
