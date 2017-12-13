@@ -11,7 +11,6 @@ from flask_dropzone import Dropzone
 from flask_script import Manager
 
 from utils import convert_to_frames, is_already_executed, BioParams, generate_scatter3d_curve
-
 from configuration import conf
 
 app = Flask(__name__)
@@ -58,10 +57,11 @@ def index():
 
 @app.route('/clear_repo')
 def clear_repo():
-    # clear repo
-    shutil.rmtree(app.config['REPOSITORY_PATH'])
-    os.mkdir(app.config['REPOSITORY_PATH'])
-    # clear infer
+    # clear repo except corneal_demo.avi
+    [os.remove(os.path.join(app.config['REPOSITORY_PATH'], p))
+     for p in os.listdir(app.config['REPOSITORY_PATH']) if not p.startswith('corneal_demo')]
+
+    # clear inference
     shutil.rmtree('static/cache')
     os.mkdir('static/cache')
     return render_template('index.html', **locals())

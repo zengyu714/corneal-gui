@@ -6,6 +6,14 @@
 
 ## Getting Started
 
+### Prerequisites
+    
++ **Python 3**
+
++ **PyTorch**, see offical [instructions](http://pytorch.org/).
+
+### Installing
+
 1. Clone this repository
 
     **Note**: Currently only support Python 3+
