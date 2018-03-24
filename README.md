@@ -4,6 +4,8 @@
 + Better usability thanks to the handsome web **GUI**.
 + Accelerated by GPU (CUDA).
 
+![usage-demo](demo/corneal_gui_usage_cropped_demo.gif)
+
 ## Getting Started
 
 ### Prerequisites
